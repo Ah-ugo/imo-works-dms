@@ -13,12 +13,12 @@ from services.cloudinary_service import cloudinary_uploader
 router = APIRouter()
 
 # Security settings
-SECRET_KEY = settings.SECRET_KEY
+SECRET_KEY = "settings.SECRET_KEY"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 
 def get_password_hash(password: str) -> str:
@@ -36,16 +36,16 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-async def authenticate_user(email: str, password: str):
-    user = await users_collection.find_one({"email": email})
+def authenticate_user(email: str, password: str):
+    user = users_collection.find_one({"email": email})
     if not user or not verify_password(password, user["password_hash"]):
         return None
     return UserInDB(**user, id=str(user["_id"]))
 
 
 @router.post("/token")
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = await authenticate_user(form_data.username, form_data.password)
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -56,8 +56,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/auth/register", response_model=User)
-async def register_user(
+@router.post("/register", response_model=User)
+def register_user(
         email: str = Form(...),
         first_name: str = Form(...),
         last_name: str = Form(...),
@@ -65,7 +65,7 @@ async def register_user(
         profile_image: Optional[UploadFile] = File(None)
 ):
     """Register a new user."""
-    existing_user = await users_collection.find_one({"email": email})
+    existing_user = users_collection.find_one({"email": email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email is already registered")
 
@@ -84,12 +84,12 @@ async def register_user(
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
     }
-    result = await users_collection.insert_one(user_dict)
+    result = users_collection.insert_one(user_dict)
     user_dict["id"] = str(result.inserted_id)
     return User(**user_dict)
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     """Retrieve the currently authenticated user."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -105,14 +105,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     except JWTError:
         raise credentials_exception
 
-    user = await users_collection.find_one({"_id": ObjectId(user_id)})
+    user = users_collection.find_one({"_id": ObjectId(user_id)})
     if not user:
         raise credentials_exception
 
     return User(**user, id=str(user["_id"]))
 
 
-async def get_current_admin_user(current_user: User = Depends(get_current_user)) -> User:
+def get_current_admin_user(current_user: User = Depends(get_current_user)) -> User:
     """Ensure the current user is an admin."""
     if current_user.role not in ["admin", "commissioner"]:
         raise HTTPException(status_code=403, detail="Admin privileges required")
@@ -120,6 +120,6 @@ async def get_current_admin_user(current_user: User = Depends(get_current_user))
 
 
 @router.get("/me", response_model=User)
-async def read_users_me(current_user: User = Depends(get_current_user)):
+def read_users_me(current_user: User = Depends(get_current_user)):
     """Get details of the currently logged-in user."""
     return current_user

@@ -1,7 +1,14 @@
 from pymongo import MongoClient
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+url = os.getenv("MONGO_URL")
+
 # MongoDB Connection
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient(url)
 db = client["document_management_system"]
 users_collection = db["users"]
 projects_collection = db["projects"]

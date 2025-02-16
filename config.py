@@ -1,20 +1,30 @@
+import os
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 
+# Load environment variables from .env
+load_dotenv()
+
+print(f"MONGO_URL from env: {os.getenv('MONGO_URL')}")  # Test
+print(f"CLOUD_NAME from env: {os.getenv('CLOUD_NAME')}")  # Test
+print(f"SECRET_KEY from env: {os.getenv('SECRET_KEY')}")  # Test
+
 class Settings(BaseSettings):
     # MongoDB settings
-    MONGODB_URL: str
-    MONGODB_DB_NAME: str
+    MONGO_URL: str
 
     # JWT settings
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # Cloudinary settings
-    CLOUDINARY_CLOUD_NAME: str
-    CLOUDINARY_API_KEY: str
-    CLOUDINARY_API_SECRET: str
+    CLOUD_NAME: str
+    API_KEY: str
+    API_SECRET: str
+
+    # Gmail settings
+    GMAIL_PASS: str
 
     class Config:
         env_file = ".env"

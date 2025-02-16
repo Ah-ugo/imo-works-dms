@@ -10,7 +10,6 @@ from bson import ObjectId
 from fastapi_pagination import Page, add_pagination, paginate
 
 from config import settings
-from database import get_database
 from models.user import User, UserCreate, UserUpdate, UserInDB
 from models.project import Project, ProjectCreate, ProjectUpdate
 from models.document import Document, DocumentCreate, DocumentUpdate
@@ -23,7 +22,7 @@ from services.auth import (
     create_access_token,
 )
 from services.cloudinary_service import cloudinary_uploader
-from routers import users, projects, documents, approvals, signatures
+from routes import users, projects, documents, approvals, signatures, auth
 
 app = FastAPI(
     title="Ministry of Works DMS",
@@ -41,11 +40,12 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
 app.include_router(documents.router, prefix="/api/documents", tags=["documents"])
-app.include_router(approvals.router, prefix="/api/approvals", tags=["approvals"])
-app.include_router(signatures.router, prefix="/api/signatures", tags=["signatures"])
+# app.include_router(approvals.router, prefix="/api/approvals", tags=["approvals"])
+# app.include_router(signatures.router, prefix="/api/signatures", tags=["signatures"])
 
 # Add pagination support
 add_pagination(app)
@@ -73,8 +73,3 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         "user": user
     }
 
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

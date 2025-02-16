@@ -7,20 +7,20 @@ import requests
 import json
 
 
-async def send_notification(message: str):
-    users = await users_collection.find({}, {"email": 1, "expo_push_token": 1}).to_list(None)
+def send_notification(message: str):
+    users = users_collection.find({}, {"email": 1, "expo_push_token": 1}).to_list(None)
 
     emails = [user["email"] for user in users if "email" in user]
     expo_tokens = [user["expo_push_token"] for user in users if "expo_push_token" in user and user["expo_push_token"]]
 
     if emails:
-        await send_email_notification(emails, message)
+        send_email_notification(emails, message)
 
     if expo_tokens:
-        await send_push_notification(expo_tokens, message)
+        send_push_notification(expo_tokens, message)
 
 
-async def send_email_notification(recipients, message):
+def send_email_notification(recipients, message):
     sender_email = settings.SMTP_USER
     sender_password = settings.SMTP_PASSWORD
     smtp_server = settings.SMTP_SERVER
@@ -43,7 +43,7 @@ async def send_email_notification(recipients, message):
         print(f"Failed to send email: {str(e)}")
 
 
-async def send_push_notification(expo_tokens, message):
+def send_push_notification(expo_tokens, message):
     expo_url = "https://exp.host/--/api/v2/push/send"
     headers = {"Content-Type": "application/json"}
 
