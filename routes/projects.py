@@ -101,6 +101,7 @@ def get_project_documents(project_id: str):
 
 
 
+
 @router.put("/{project_id}", response_model=Project)
 def update_project(
     project_id: str,
