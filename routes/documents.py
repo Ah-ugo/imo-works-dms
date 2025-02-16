@@ -182,9 +182,37 @@ async def upload_document_reply(
     return Document(**new_reply)
 
 @router.get("/{document_id}/replies", response_model=List[Document])
-def get_document_replies(document_id: str):
+def get_document_replies(document_id: str, user=Depends(get_current_user)):
     replies = documents_collection.find({"parent_document_id": document_id})
     return [Document(**{**reply, "_id": str(reply["_id"])}) for reply in replies]
+
+
+@router.get("/recent", response_model=List[Document])
+def get_recent_documents(limit: int = 5, user=Depends(get_current_user)):  # Add limit parameter
+    """Retrieves the most recently uploaded documents."""
+
+    documents = list(documents_collection.find().sort([("created_at", -1)]).limit(limit))
+
+    # Convert ObjectIds to strings and return as Document objects
+    recent_documents = []
+    for doc in documents:
+        doc["id"] = str(doc.pop("_id")) # Move and convert _id to id
+        recent_documents.append(Document(**doc))
+    return recent_documents
+
+
+@router.get("/", response_model=List[Document])
+def get_all_documents(user=Depends(get_current_user)):
+    """Retrieves all documents."""
+
+    documents = list(documents_collection.find())  # Get all documents as a list
+
+    all_documents = []
+    for doc in documents:
+        doc["id"] = str(doc.pop("_id"))  # Convert ObjectId to string
+        all_documents.append(Document(**doc))
+
+    return all_documents
 
 
 @router.get("/search", response_model=List[Document])
@@ -193,7 +221,8 @@ def search_documents(
         project_id: Optional[str] = None,
         reference_number: Optional[str] = None,
         document_type: Optional[str] = None,
-        status: Optional[str] = None
+        status: Optional[str] = None,
+user=Depends(get_current_user)
 ):
     query = {}
     if title:
