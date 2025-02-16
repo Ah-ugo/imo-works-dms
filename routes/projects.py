@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, Form, File
 from bson import ObjectId
 from datetime import datetime
-from database import projects_collection
+from database import projects_collection, documents_collection
+from models.document import Document
 from models.project import Project
 from services.auth import get_current_user, get_current_admin_user
 from typing import List, Optional
@@ -77,6 +78,26 @@ def get_recent_projects(limit: int = 5, user=Depends(get_current_user)):  # Add 
         proj["id"] = str(proj.pop("_id")) # Move and convert _id to id
         recent_projects.append(Project(**proj))
     return recent_projects
+
+
+
+@router.get("/{project_id}/documents", response_model=List[Document])
+def get_project_documents(project_id: str):
+    """Retrieve all documents associated with a specific project."""
+    try:
+        documents = list(documents_collection.find({"project_id": project_id})) # Convert cursor to list immediately
+
+        project_documents = []
+        for doc in documents:
+            doc["id"] = str(doc.pop("_id"))  # Convert ObjectId to string and assign to "id"
+            project_documents.append(Document(**doc))
+
+        return project_documents
+
+    except Exception as e:
+        import logging
+        logging.error(f"Error getting project documents: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
 
