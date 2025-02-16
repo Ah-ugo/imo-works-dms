@@ -4,20 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1ccd6804-c472-45af-b06a-9dca1033e8c2" name="Changes" comment="">
+    <list default="true" id="1ccd6804-c472-45af-b06a-9dca1033e8c2" name="Changes" comment="Ensured major endpoints are working">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/document.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/document.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/auth.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/documents.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/documents.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/notifications.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/notifications.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/projects.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/projects.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/cloudinary_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/cloudinary_service.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +25,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Ah-ugo"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Ah-ugo/imo-works-dms",
+    "accountId": "77a49bd3-eac6-4607-b703-e5a16acd681e"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -68,19 +71,22 @@
       <option name="presentableId" value="Default" />
       <updated>1739307072980</updated>
     </task>
+    <task id="LOCAL-00001" summary="Ensured major endpoints are working">
+      <option name="closed" value="true" />
+      <created>1739688022350</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1739688022350</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/routes/notifications.py</url>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Ensured major endpoints are working" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ensured major endpoints are working" />
   </component>
 </project>

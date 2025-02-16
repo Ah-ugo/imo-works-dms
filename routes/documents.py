@@ -3,22 +3,22 @@ from fastapi.responses import JSONResponse
 from typing import List, Optional
 from bson import ObjectId
 from models.document import Document, DocumentCreate, DocumentUpdate, Comment, FileItemUpdate, FileItem
-from database import documents_collection
+from database import documents_collection, users_collection
 from services.auth import get_current_user, get_current_admin_user
 from services.cloudinary_service import cloudinary_uploader
-from routes.notifications import send_notification
+from routes.notifications import send_comment_notification, send_upload_notification
 from datetime import datetime
 
 router = APIRouter()
 
 
-parent_id = "67b0d24045ee190e437238e0"  # Parent document ID from the request
-document = documents_collection.find_one({"_id": ObjectId(parent_id)})
-
-if document:
-    print("Document exists:", document)
-else:
-    print("Parent document not found!")
+# parent_id = "67b0d24045ee190e437238e0"
+# document = documents_collection.find_one({"_id": ObjectId(parent_id)})
+#
+# if document:
+#     print("Document exists:", document)
+# else:
+#     print("Parent document not found!")
 
 # @router.post("/", response_model=Document)
 # def create_document(
@@ -134,8 +134,11 @@ async def create_document(
     }
 
     result = documents_collection.insert_one(document_data)
+
     new_document = documents_collection.find_one({"_id": result.inserted_id})
     new_document["id"] = str(new_document.pop("_id"))
+    users_to_notify = users_collection.find({})
+    send_upload_notification(Document(**new_document), list(users_to_notify))
     return Document(**new_document)
 
 
@@ -318,6 +321,9 @@ def add_comment(document_id: str, content: str, user=Depends(get_current_user)):
     comment = Comment(user_id=user.id, content=content)
     documents_collection.update_one({"_id": ObjectId(document_id)}, {"$push": {"comments": comment.dict()}})
     updated_document = documents_collection.find_one({"_id": ObjectId(document_id)})
+    users_to_notify = users_collection.find({})  # Fetch all users for now
+    send_comment_notification(Document(**updated_document), comment, list(users_to_notify))
+
     return Document(**updated_document)
 
 @router.get("/{document_id}/comments", response_model=List[Comment])

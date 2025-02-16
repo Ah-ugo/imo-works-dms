@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     # Gmail settings
     GMAIL_PASS: str
 
+    GMAIL_USER: str
+
     class Config:
         env_file = ".env"
 
