@@ -89,7 +89,7 @@ def update_user(user_id: str, user_data: UserUpdate, current_user: User = Depend
 # Upload profile image
 @router.post("/{user_id}/upload-profile", response_model=User)
 def upload_profile_image(user_id: str, file: UploadFile = File(...),
-                               current_user: User = Depends(get_current_user)):
+                         current_user: User = Depends(get_current_user)):
     if current_user.id != user_id and current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Permission denied")
 
@@ -100,11 +100,17 @@ def upload_profile_image(user_id: str, file: UploadFile = File(...),
             {"$set": {"profile_image": image_url, "updated_at": datetime.utcnow()}},
             return_document=ReturnDocument.AFTER
         )
+
         if not updated_user:
             raise HTTPException(status_code=404, detail="User not found")
+
+        # Convert ObjectId to string and remove _id before returning
+        updated_user["id"] = str(updated_user.pop("_id"))  # Crucial fix
         return User(**updated_user)
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error uploading image for user {user_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
 # Delete user (Admin only)
