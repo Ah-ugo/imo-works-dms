@@ -64,6 +64,22 @@ def get_project_by_name(project_name: str):
     ]
 
 
+
+@router.get("/recent", response_model=List[Project])
+def get_recent_projects(limit: int = 5, user=Depends(get_current_user)):  # Add limit parameter
+    """Retrieves the most recently uploaded documents."""
+
+    projects = list(projects_collection.find().sort([("created_at", -1)]).limit(limit))
+
+    # Convert ObjectIds to strings and return as Document objects
+    recent_projects = []
+    for proj in projects:
+        proj["id"] = str(proj.pop("_id")) # Move and convert _id to id
+        recent_projects.append(Project(**proj))
+    return recent_projects
+
+
+
 @router.put("/{project_id}", response_model=Project)
 def update_project(
     project_id: str,

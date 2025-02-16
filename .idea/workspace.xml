@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1ccd6804-c472-45af-b06a-9dca1033e8c2" name="Changes" comment="Implemented get recent documents and get all documents" />
+    <list default="true" id="1ccd6804-c472-45af-b06a-9dca1033e8c2" name="Changes" comment="fixed upload profile image 1">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/projects.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/projects.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -90,7 +93,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739716656424</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="fixed upload profile image 1">
+      <option name="closed" value="true" />
+      <created>1739717696461</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1739717696461</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -100,6 +111,7 @@
     <MESSAGE value="Ensured major endpoints are working" />
     <MESSAGE value="Implemented email notification" />
     <MESSAGE value="Implemented get recent documents and get all documents" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implemented get recent documents and get all documents" />
+    <MESSAGE value="fixed upload profile image 1" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed upload profile image 1" />
   </component>
 </project>
