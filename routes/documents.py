@@ -101,48 +101,58 @@ router = APIRouter()
 
 @router.post("/", response_model=Document)
 async def create_document(
-    files: List[UploadFile] = File(...),  # Accept multiple files
-    title: str = Form(...),
-    project_id: str = Form(...),
-    reference_number: str = Form(...),
-    document_type: str = Form(...),
-    uploaded_by: str = Depends(get_current_user),
-    description: Optional[str] = Form(None),
-    parent_document_id: Optional[str] = Form(None)
+        files: List[UploadFile] = File(...),  # Accept multiple files
+        title: str = Form(...),
+        project_id: str = Form(...),
+        reference_number: str = Form(...),
+        document_type: str = Form(...),
+        uploaded_by: str = Depends(get_current_user),
+        description: Optional[str] = Form(None),
+        parent_document_id: Optional[str] = Form(None)
 ):
     """Uploads multiple files to Cloudinary and saves the document data in MongoDB."""
 
     file_items = []
-    for file in files:
-        file_url = cloudinary_uploader.upload(file.file)
-        file_items.append(FileItem(url=file_url, name=file.filename))  # Store file details
+    try:
+        for file in files:
+            try:
+                file_url = cloudinary_uploader.upload(file.file)
+                file_items.append(FileItem(url=file_url, name=file.filename))
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
 
-    document_data = {
-        "title": title,
-        "project_id": project_id,
-        "reference_number": reference_number,
-        "document_type": document_type,
-        "description": description,
-        "uploaded_by": uploaded_by.id if hasattr(uploaded_by, "id") else uploaded_by,
-        "file_items": [item.dict() for item in file_items],  # Store list of file items
-        "parent_document_id": parent_document_id,
-        "status": "pending",
-        "signed_by": [],
-        "comments": [],
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
-    }
+        document_data = {
+            "title": title,
+            "project_id": project_id,
+            "reference_number": reference_number,
+            "document_type": document_type,
+            "description": description,
+            "uploaded_by": uploaded_by.id if hasattr(uploaded_by, "id") else uploaded_by,
+            "file_items": [item.dict() for item in file_items],
+            "parent_document_id": parent_document_id,
+            "status": "pending",
+            "signed_by": [],
+            "comments": [],
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
 
-    result = documents_collection.insert_one(document_data)
+        result = documents_collection.insert_one(document_data)
+        new_document = documents_collection.find_one({"_id": result.inserted_id})
 
-    new_document = documents_collection.find_one({"_id": result.inserted_id})
-    new_document["id"] = str(new_document.pop("_id"))
-    users_to_notify = users_collection.find({})
-    send_upload_notification(Document(**new_document), list(users_to_notify))
-    return Document(**new_document)
+        if not new_document:
+            raise HTTPException(status_code=500, detail="Failed to retrieve inserted document")
 
+        new_document["id"] = str(new_document.pop("_id"))
+        users_to_notify = users_collection.find({})
+        send_upload_notification(Document(**new_document), list(users_to_notify))
 
+        return Document(**new_document)
 
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Document creation failed: {str(e)}")
 
 
 @router.post("/{document_id}/reply", response_model=Document)
@@ -338,11 +348,22 @@ def update_document(document_id: str, update_data: DocumentUpdate, user=Depends(
     updated_document = documents_collection.find_one({"_id": ObjectId(document_id)})
     return Document(**updated_document)
 
+
 @router.delete("/{document_id}")
 def delete_document(document_id: str, user=Depends(get_current_admin_user)):
-    result = documents_collection.delete_one({"_id": ObjectId(document_id)})
-    if result.deleted_count == 0:
+    """Deletes a document and its associated files from Cloudinary."""
+    document = documents_collection.find_one({"_id": ObjectId(document_id)})
+    if not document:
         raise HTTPException(status_code=404, detail="Document not found")
+
+    # Delete associated files from Cloudinary
+    for file_item in document.get("file_items", []):
+        try:
+            cloudinary_uploader.destroy(file_item["url"].split("/")[-1].split(".")[0])  # Extract Cloudinary public_id
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to delete file from Cloudinary: {str(e)}")
+
+    documents_collection.delete_one({"_id": ObjectId(document_id)})
     return JSONResponse(content={"message": "Document deleted successfully"})
 
 @router.post("/{document_id}/comments", response_model=Document)
