@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from fastapi.responses import JSONResponse
 from typing import List, Optional
 from bson import ObjectId
@@ -8,6 +8,7 @@ from services.auth import get_current_user, get_current_admin_user
 from services.cloudinary_service import cloudinary_uploader
 from routes.notifications import send_comment_notification, send_upload_notification
 from datetime import datetime
+import re
 
 router = APIRouter()
 
@@ -326,11 +327,12 @@ def get_document_status(document_id: str):
     return document["status"]
 
 
-@router.get("/search", response_model=List[Document])
-def search_documents(title: str):
-    regex = re.compile(f".*{title}.*", re.IGNORECASE)
-    documents = documents_collection.find({"title": regex}).to_list(None)
-    return [Document(**doc) for doc in documents]
+# @router.get("/search", response_model=List[Document])
+# def search_documents(title: str = Query(..., min_length=1)):
+#     regex = re.compile(f".*{re.escape(title)}.*", re.IGNORECASE)
+#     documents = documents_collection.find({"title": regex})
+#     return [Document(**doc) for doc in documents]
+
 
 @router.get("/{document_id}", response_model=Document)
 def get_document(document_id: str):

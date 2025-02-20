@@ -7,6 +7,8 @@ from models.project import Project
 from services.auth import get_current_user, get_current_admin_user
 from typing import List, Optional
 from services.cloudinary_service import cloudinary_uploader
+import pandas as pd
+import io
 
 router = APIRouter()
 
@@ -15,6 +17,16 @@ router = APIRouter()
 def create_project(
         project_name: str = Form(...),
         description: Optional[str] = Form(None),
+        contractor: Optional[str] = Form(None),
+        resident_engineer: Optional[str] = Form(None),
+        progress_report: Optional[str] = Form(None),
+        project_tags: Optional[str] = Form(None),
+        award_date: Optional[str] = Form(None),
+        contract_sum: Optional[float] = Form(None),
+        duration: Optional[str] = Form(None),
+        mobilisation_paid: Optional[float] = Form(None),
+        interim_certificate_earned: Optional[float] = Form(None),
+        remark: Optional[str] = Form(None),
         current_user=Depends(get_current_user)
 ):
     """Create a new project."""
@@ -22,6 +34,16 @@ def create_project(
         project_dict = {
             "project_name": project_name,
             "description": description,
+            "contractor": contractor,
+            "resident_engineer": resident_engineer,
+            "progress_report": progress_report,
+            "project_tags": project_tags,
+            "award_date": award_date,
+            "contract_sum": contract_sum,
+            "duration": duration,
+            "mobilisation_paid": mobilisation_paid,
+            "interim_certificate_earned": interim_certificate_earned,
+            "remark": remark,
             "created_by": current_user.id,
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
@@ -31,6 +53,67 @@ def create_project(
         return Project(**project_dict)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating project: {str(e)}")
+
+
+@router.get("/export", response_model=dict)
+def export_projects():
+    """Generate spreadsheet and upload to Cloudinary."""
+    projects = list(projects_collection.find())
+    if not projects:
+        raise HTTPException(status_code=404, detail="No projects found")
+
+    project_data = [{
+        "Title": proj["project_name"],
+        "Contractor": proj.get("contractor"),
+        "Resident Engineer": proj.get("resident_engineer"),
+        "Progress Report": proj.get("progress_report"),
+        "Project Tags": proj.get("project_tags"),
+        "Award Date": proj.get("award_date"),
+        "Contract Sum": proj.get("contract_sum"),
+        "Duration": proj.get("duration"),
+        "Mobilisation Paid": proj.get("mobilisation_paid"),
+        "Interim Certificate Earned": proj.get("interim_certificate_earned"),
+        "Remark": proj.get("remark"),
+    } for proj in projects]
+
+    df = pd.DataFrame(project_data)
+    output = io.BytesIO()
+    df.to_excel(output, index=False, engine="openpyxl")  # Ensure format compatibility
+    output.seek(0)
+
+    # Create an UploadFile-like object
+    output_file = UploadFile(filename="projects_export.xlsx", file=output)
+
+    upload_result = cloudinary_uploader.upload(output_file.file, folder="project_exports")
+
+    return {"spreadsheet_url": upload_result}
+
+
+@router.get("/export/ongoing", response_model=dict)
+def export_ongoing_projects():
+    """Generate spreadsheet of ongoing projects and upload to Cloudinary."""
+    projects = list(projects_collection.find({"project_tags": "ongoing"}))
+    if not projects:
+        raise HTTPException(status_code=404, detail="No ongoing projects found")
+
+    project_data = [{
+        "Title": proj["project_name"],
+        "Contractor": proj.get("contractor"),
+        "Resident Engineer": proj.get("resident_engineer"),
+        "Progress Report": proj.get("progress_report"),
+    } for proj in projects]
+
+    df = pd.DataFrame(project_data)
+    output = io.BytesIO()
+    df.to_excel(output, index=False, engine="openpyxl")  # Ensure format compatibility
+    output.seek(0)
+
+    # Create an UploadFile-like object
+    output_file = UploadFile(filename="ongoing_projects_export.xlsx", file=output)
+
+    upload_result = cloudinary_uploader.upload(output_file.file, folder="project_exports")
+
+    return {"spreadsheet_url": upload_result}
 
 
 @router.get("/", response_model=List[Project])
@@ -89,10 +172,20 @@ def update_project(
         project_id: str,
         project_name: Optional[str] = Form(None),
         description: Optional[str] = Form(None),
+        contractor: Optional[str] = Form(None),
+        resident_engineer: Optional[str] = Form(None),
+        progress_report: Optional[str] = Form(None),
+        project_tags: Optional[str] = Form(None),
+        award_date: Optional[str] = Form(None),
+        contract_sum: Optional[float] = Form(None),
+        duration: Optional[str] = Form(None),
+        mobilisation_paid: Optional[float] = Form(None),
+        interim_certificate_earned: Optional[float] = Form(None),
+        remark: Optional[str] = Form(None),
         current_user=Depends(get_current_user)
 ):
     """Update a project."""
-    update_data = {k: v for k, v in {"project_name": project_name, "description": description}.items() if v is not None}
+    update_data = {k: v for k, v in locals().items() if v is not None and k != "project_id" and k != "current_user"}
     if update_data:
         update_data["updated_at"] = datetime.utcnow()
         projects_collection.update_one({"_id": ObjectId(project_id)}, {"$set": update_data})
