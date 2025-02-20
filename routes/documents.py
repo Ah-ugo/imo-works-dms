@@ -358,10 +358,10 @@ def delete_document(document_id: str, user=Depends(get_current_admin_user)):
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    # Delete associated files from Cloudinary
+
     for file_item in document.get("file_items", []):
         try:
-            cloudinary_uploader.destroy(file_item["url"].split("/")[-1].split(".")[0])  # Extract Cloudinary public_id
+            cloudinary_uploader.delete(file_item["url"].split("/")[-1].split(".")[0])
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to delete file from Cloudinary: {str(e)}")
 
