@@ -80,7 +80,8 @@ def get_project_documents(project_id: str):
     documents = list(documents_collection.find({"project_id": project_id}))
     if not documents:
         raise HTTPException(status_code=404, detail="No documents found for this project")
-    return [Document(**{**doc, "id": str(doc.pop("_id"))}) for doc in documents]
+    return [Document(**{**doc, "id": str(doc["_id"]), "_id": str(doc["_id"])}) for doc in documents]
+
 
 
 @router.put("/{project_id}", response_model=Project)
