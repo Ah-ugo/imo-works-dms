@@ -10,6 +10,12 @@ from services.cloudinary_service import cloudinary_uploader
 import pandas as pd
 import io
 
+def get_project_or_404(project_id: str):
+    project = projects_collection.find_one({"_id": ObjectId(project_id)})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
+
 router = APIRouter()
 
 
@@ -166,33 +172,56 @@ def get_project_documents(project_id: str):
     return [Document(**{**doc, "id": str(doc["_id"]), "_id": str(doc["_id"])}) for doc in documents]
 
 
-
-@router.put("/{project_id}", response_model=Project)
+@router.put("/projects/{project_id}")
 def update_project(
         project_id: str,
-        project_name: Optional[str] = Form(None),
-        description: Optional[str] = Form(None),
-        contractor: Optional[str] = Form(None),
-        resident_engineer: Optional[str] = Form(None),
-        progress_report: Optional[str] = Form(None),
-        project_tags: Optional[str] = Form(None),
-        award_date: Optional[str] = Form(None),
-        contract_sum: Optional[float] = Form(None),
-        duration: Optional[str] = Form(None),
-        mobilisation_paid: Optional[float] = Form(None),
-        interim_certificate_earned: Optional[float] = Form(None),
-        remark: Optional[str] = Form(None),
-        current_user=Depends(get_current_user)
+        project_name: Optional[str] = None,
+        contractor: Optional[str] = None,
+        resident_engineer: Optional[str] = None,
+        progress_report: Optional[str] = None,
+        project_tags: Optional[str] = None,
+        award_date: Optional[str] = None,
+        contract_sum: Optional[float] = None,
+        duration: Optional[str] = None,
+        mobilisation_paid: Optional[float] = None,
+        interim_certificate_earned: Optional[float] = None,
+        remark: Optional[str] = None,
+        current_user: dict = Depends(get_current_user),
 ):
-    """Update a project."""
-    update_data = {k: v for k, v in locals().items() if v is not None and k != "project_id" and k != "current_user"}
-    if update_data:
-        update_data["updated_at"] = datetime.utcnow()
-        projects_collection.update_one({"_id": ObjectId(project_id)}, {"$set": update_data})
-    updated_project = projects_collection.find_one({"_id": ObjectId(project_id)})
-    if not updated_project:
-        raise HTTPException(status_code=404, detail="Project not found")
-    return Project(**updated_project, id=str(updated_project["_id"]))
+    project = get_project_or_404(project_id)
+
+    update_data = {}
+    if project_name is not None:
+        update_data["project_name"] = project_name
+    if contractor is not None:
+        update_data["contractor"] = contractor
+    if resident_engineer is not None:
+        update_data["resident_engineer"] = resident_engineer
+    if progress_report is not None:
+        update_data["progress_report"] = progress_report
+    if project_tags is not None:
+        update_data["project_tags"] = project_tags
+    if award_date is not None:
+        update_data["award_date"] = award_date
+    if contract_sum is not None:
+        update_data["contract_sum"] = contract_sum
+    if duration is not None:
+        update_data["duration"] = duration
+    if mobilisation_paid is not None:
+        update_data["mobilisation_paid"] = mobilisation_paid
+    if interim_certificate_earned is not None:
+        update_data["interim_certificate_earned"] = interim_certificate_earned
+    if remark is not None:
+        update_data["remark"] = remark
+
+    update_data["updated_at"] = datetime.utcnow()
+
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No valid fields provided for update")
+
+    projects_collection.update_one({"_id": ObjectId(project_id)}, {"$set": update_data})
+
+    return {"message": "Project updated successfully", "updated_fields": update_data}
 
 
 @router.delete("/{project_id}", response_model=dict)

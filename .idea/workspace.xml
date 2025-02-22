@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1ccd6804-c472-45af-b06a-9dca1033e8c2" name="Changes" comment="implemented get projects documents endpoint">
+    <list default="true" id="1ccd6804-c472-45af-b06a-9dca1033e8c2" name="Changes" comment="fixed delete document endpoint">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/worksFile.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/worksFile.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/projects.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/projects.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,7 +127,39 @@
       <option name="project" value="LOCAL" />
       <updated>1739745411199</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="implemented get projects documents endpoint">
+      <option name="closed" value="true" />
+      <created>1740025697949</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1740025697949</updated>
+    </task>
+    <task id="LOCAL-00009" summary="fixed get projeccts document endpoint">
+      <option name="closed" value="true" />
+      <created>1740041532209</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1740041532209</updated>
+    </task>
+    <task id="LOCAL-00010" summary="implemented features contributed by users of the app such as exporting project reports as spreadsheet using pandas">
+      <option name="closed" value="true" />
+      <created>1740081523161</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1740081523161</updated>
+    </task>
+    <task id="LOCAL-00011" summary="fixed delete document endpoint">
+      <option name="closed" value="true" />
+      <created>1740083575620</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1740083575620</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -137,6 +172,9 @@
     <MESSAGE value="fixed upload profile image 1" />
     <MESSAGE value="implemented get recent projects endpoint" />
     <MESSAGE value="implemented get projects documents endpoint" />
-    <option name="LAST_COMMIT_MESSAGE" value="implemented get projects documents endpoint" />
+    <MESSAGE value="fixed get projeccts document endpoint" />
+    <MESSAGE value="implemented features contributed by users of the app such as exporting project reports as spreadsheet using pandas" />
+    <MESSAGE value="fixed delete document endpoint" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed delete document endpoint" />
   </component>
 </project>
