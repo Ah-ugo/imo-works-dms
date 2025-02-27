@@ -51,3 +51,4 @@ websockets==13.0.1
 requests
 pandas
 openpyxl
+python-docx
