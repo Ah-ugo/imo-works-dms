@@ -459,66 +459,63 @@ def get_project_documents(project_id: str):
 
 @router.put("/projects/{project_id}")
 def update_project(
-        project_id: str,
-        project_name: Optional[str] = Form(None),
-        contractor: Optional[str] = Form(None),
-        resident_engineer: Optional[str] = Form(None),
-        progress_report: Optional[str] = Form(None),
-        project_tags: Optional[str] = Form(None),
-        award_date: Optional[str] = Form(None),
-        contract_sum: Optional[str] = Form(None),
-        duration: Optional[str] = Form(None),
-        mobilisation_paid: Optional[str] = Form(None),
-        interim_certificate_earned: Optional[str] = Form(None),
-        remark: Optional[str] = Form(None),
-        progress_of_work: Optional[str] = Form(None),  # Added progress_of_work field
-        current_user: dict = Depends(get_current_user),
+    project_id: str,
+    project_name: Optional[str] = Form(None),
+    contractor: Optional[str] = Form(None),
+    resident_engineer: Optional[str] = Form(None),
+    progress_report: Optional[str] = Form(None),
+    project_tags: Optional[str] = Form(None),
+    award_date: Optional[str] = Form(None),
+    contract_sum: Optional[str] = Form(None),
+    duration: Optional[str] = Form(None),
+    mobilisation_paid: Optional[str] = Form(None),
+    interim_certificate_earned: Optional[str] = Form(None),
+    remark: Optional[str] = Form(None),
+    current_user: dict = Depends(get_current_user),
 ):
     project = get_project_or_404(project_id)
 
     update_data = {}
-    if project_name is not None:
+
+    # Only add fields to update_data if provided
+    if project_name:
         update_data["project_name"] = project_name
-    if contractor is not None:
+    if contractor:
         update_data["contractor"] = contractor
-    if resident_engineer is not None:
+    if resident_engineer:
         update_data["resident_engineer"] = resident_engineer
-    if progress_report is not None:
+    if progress_report:
         update_data["progress_report"] = progress_report
-    if project_tags is not None:
+    if project_tags:
         update_data["project_tags"] = project_tags
-    if award_date is not None:
+    if award_date:
         update_data["award_date"] = award_date
-    if duration is not None:
+        # try:
+        #     update_data["award_date"] = datetime.strptime(award_date, "%Y-%m-%d")
+        # except ValueError:
+        #     raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+    if duration:
         update_data["duration"] = duration
-    if remark is not None:
+    if remark:
         update_data["remark"] = remark
 
-    # Convert float fields
-    update_data["contract_sum"] = parse_optional_float(contract_sum)
-    update_data["mobilisation_paid"] = parse_optional_float(mobilisation_paid)
-    update_data["interim_certificate_earned"] = parse_optional_float(interim_certificate_earned)
-
-    # Handle progress_of_work field
-    if progress_of_work is not None:
-        try:
-            # Try to parse as JSON
-            progress_data = json.loads(progress_of_work)
-            update_data["progress_of_work"] = progress_data
-        except json.JSONDecodeError:
-            # If not valid JSON, store as plain text in a summary field
-            update_data["progress_of_work"] = {"summary": progress_of_work}
-
-    update_data["updated_at"] = datetime.utcnow()
+    # Convert float fields only if they have valid values
+    if contract_sum:
+        update_data["contract_sum"] = parse_optional_float(contract_sum)
+    if mobilisation_paid:
+        update_data["mobilisation_paid"] = parse_optional_float(mobilisation_paid)
+    if interim_certificate_earned:
+        update_data["interim_certificate_earned"] = parse_optional_float(interim_certificate_earned)
 
     if not update_data:
         raise HTTPException(status_code=400, detail="No valid fields provided for update")
 
+    update_data["updated_at"] = datetime.utcnow()
+
+    # Update only the provided fields
     projects_collection.update_one({"_id": ObjectId(project_id)}, {"$set": update_data})
 
     return {"message": "Project updated successfully", "updated_fields": list(update_data.keys())}
-
-
 
 @router.delete("/{project_id}", response_model=dict)
 def delete_project(project_id: str, current_user=Depends(get_current_admin_user)):
