@@ -96,7 +96,7 @@ def create_project(
             "contractor": contractor,
             "resident_engineer": resident_engineer,
             "progress_report": progress_report,
-            "project_tags": project_tags,
+            "project_tags": project_tags.lower(),
             "award_date": award_date,
             "contract_sum": contract_sum,
             "duration": duration,
@@ -487,7 +487,7 @@ def update_project(
     if progress_report:
         update_data["progress_report"] = progress_report
     if project_tags:
-        update_data["project_tags"] = project_tags
+        update_data["project_tags"] = project_tags.lower()
     if award_date:
         update_data["award_date"] = award_date
         # try:
