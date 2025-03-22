@@ -384,18 +384,28 @@ def export_ongoing_projects():
 def get_projects():
     """Retrieve all projects sorted by creation date."""
     projects = projects_collection.find().sort("created_at", -1)
-    projects_collection.update_many(
-        {"progress_of_work": {"$type": "array"}},
-        {"$set": {"progress_of_work": {}}}
-    )
+
+    def sanitize_data(data):
+        """Recursively replace NaN values with None."""
+        import math
+        if isinstance(data, float) and math.isnan(data):
+            return None
+        elif isinstance(data, dict):
+            return {k: sanitize_data(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [sanitize_data(v) for v in data]
+        return data
+
     return [
         Project(
-            **{
-                **project,
-                "id": str(project["_id"]),
-                "progress_of_work": project.get("progress_of_work", {}) if isinstance(project.get("progress_of_work"),
-                                                                                      dict) else {}
-            }
+            **sanitize_data(
+                {
+                    **project,
+                    "id": str(project["_id"]),
+                    "progress_of_work": project.get("progress_of_work", {}) if isinstance(
+                        project.get("progress_of_work"), dict) else {}
+                }
+            )
         )
         for project in projects
     ]
