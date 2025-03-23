@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1ccd6804-c472-45af-b06a-9dca1033e8c2" name="Changes" comment="fixed project tags case sensitivity">
+    <list default="true" id="1ccd6804-c472-45af-b06a-9dca1033e8c2" name="Changes" comment="fixed nan issues in get projects">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/projects.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/projects.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,7 +173,15 @@
       <option name="project" value="LOCAL" />
       <updated>1742549512986</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="fixed nan issues in get projects">
+      <option name="closed" value="true" />
+      <created>1742646049646</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1742646049646</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -190,6 +199,7 @@
     <MESSAGE value="fixed delete document endpoint" />
     <MESSAGE value="fixed update project endpoint" />
     <MESSAGE value="fixed project tags case sensitivity" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed project tags case sensitivity" />
+    <MESSAGE value="fixed nan issues in get projects" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed nan issues in get projects" />
   </component>
 </project>

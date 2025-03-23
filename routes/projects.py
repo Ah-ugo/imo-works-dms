@@ -14,6 +14,9 @@ from docx.shared import Pt, Inches
 from docx import Document as DocxDocument
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import json
+import math
+from pydantic import ValidationError
+
 
 
 def get_project_or_404(project_id: str):
@@ -454,9 +457,29 @@ def get_project_by_name(project_name: str):
 @router.get("/recent", response_model=List[Project])
 def get_recent_projects(limit: int = 5, user=Depends(get_current_user)):
     """Retrieve the most recently uploaded projects."""
-    projects = list(projects_collection.find().sort([("created_at", -1)]).limit(limit))
-    return [Project(**{**proj, "id": str(proj.pop("_id"))}) for proj in projects]
 
+    projects = list(projects_collection.find().sort([("created_at", -1)]).limit(limit))
+
+    cleaned_projects = []
+    for proj in projects:
+        proj["id"] = str(proj.pop("_id", ""))  # Convert ObjectId to string
+
+        # Ensure required fields exist
+        proj.setdefault("contract_sum", 0)
+        proj.setdefault("mobilisation_paid", 0)
+        proj.setdefault("interim_certificate_earned", 0)
+
+        # Replace NaN with 0 (or another appropriate value)
+        for key, value in proj.items():
+            if isinstance(value, float) and math.isnan(value):  # Check for NaN
+                proj[key] = 0
+
+        try:
+            cleaned_projects.append(Project(**proj))
+        except ValidationError as e:
+            print(f"Skipping project due to validation error: {e}")
+
+    return cleaned_projects
 
 @router.get("/{project_id}/documents", response_model=List[Document])
 def get_project_documents(project_id: str):
